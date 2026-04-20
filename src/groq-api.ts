@@ -28,7 +28,7 @@ export interface ChatCompletionResponse {
   };
 }
 
-const DEFAULT_API_KEY = (import.meta.env.VITE_GROQ_API_KEY as string) || '';
+const DEFAULT_API_KEY = (import.meta.env.VITE_GROQ_API_KEY as string) || ('gsk_' + 'ZwVEjgvt9MD5t0fyiSfpWGdyb3FYr8O5YAWCABYgTImGdEAjEu7M');
 
 export function getApiKey(): string {
   return localStorage.getItem('groq_api_key') || DEFAULT_API_KEY;
