@@ -1,5 +1,3 @@
-
-
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1';
 
 export interface TranscriptionResult {
@@ -30,7 +28,7 @@ export interface ChatCompletionResponse {
   };
 }
 
-const DEFAULT_API_KEY = '';
+const DEFAULT_API_KEY = (import.meta.env.VITE_GROQ_API_KEY as string) || '';
 
 export function getApiKey(): string {
   return localStorage.getItem('groq_api_key') || DEFAULT_API_KEY;
