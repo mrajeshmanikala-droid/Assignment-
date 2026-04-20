@@ -200,6 +200,13 @@ function renderApp(): void {
       </div>
     ` : ''}
 
+    ${!getApiKey() ? `
+      <div class="upgrade-banner" style="background: var(--danger); margin-top: 0;">
+        <span>⚠️ Groq API Key is not configured. Please add it in Settings to enable AI features.</span>
+        <button class="btn btn-primary btn-sm" id="btn-banner-settings" style="padding: 4px 12px; font-size: 11px; background: white; color: var(--danger);">Open Settings</button>
+      </div>
+    ` : ''}
+
     <div class="main-content">
       <!-- Left Column: Transcript -->
       <div class="panel transcript-panel" id="transcript-panel">
@@ -359,6 +366,9 @@ function attachEventListeners(): void {
 
   const bannerUpgradeBtn = document.getElementById('btn-banner-upgrade');
   if (bannerUpgradeBtn) bannerUpgradeBtn.addEventListener('click', renderPricingPage);
+
+  const bannerSettingsBtn = document.getElementById('btn-banner-settings');
+  if (bannerSettingsBtn) bannerSettingsBtn.addEventListener('click', openSettings);
 
   const refreshBtn = document.getElementById('btn-refresh-suggestions');
   if (refreshBtn) refreshBtn.addEventListener('click', () => {
@@ -839,6 +849,7 @@ function openSettings(): void {
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" id="btn-cancel-settings">Cancel</button>
+        <button class="btn btn-ghost" id="btn-test-api" style="margin-right: auto;">Test Connection</button>
         <button class="btn btn-primary" id="btn-save-settings">Save Settings</button>
       </div>
     </div>
@@ -852,6 +863,36 @@ function openSettings(): void {
   document.getElementById('btn-close-settings')!.addEventListener('click', closeSettings);
   document.getElementById('btn-cancel-settings')!.addEventListener('click', closeSettings);
   document.getElementById('btn-save-settings')!.addEventListener('click', saveSettings);
+  
+  document.getElementById('btn-test-api')!.addEventListener('click', async () => {
+    const key = (document.getElementById('input-api-key') as HTMLInputElement).value;
+    if (!key) {
+      showToast('Please enter an API key first', 'error');
+      return;
+    }
+    
+    const btn = document.getElementById('btn-test-api') as HTMLButtonElement;
+    const originalText = btn.textContent;
+    btn.textContent = 'Testing...';
+    btn.disabled = true;
+    
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { 'Authorization': `Bearer ${key}` }
+      });
+      if (response.ok) {
+        showToast('Connection successful!', 'success');
+      } else {
+        const err = await response.json().catch(() => ({}));
+        showToast(`Connection failed: ${err.error?.message || response.status}`, 'error');
+      }
+    } catch (err) {
+      showToast(`Network error: ${(err as Error).message}`, 'error');
+    } finally {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  });
 }
 
 function closeSettings(): void {
@@ -868,6 +909,7 @@ function saveSettings(): void {
   setWhisperModel(whisperSelect.value);
 
   closeSettings();
+  renderApp();
   showToast('Settings saved successfully', 'success');
 }
 
