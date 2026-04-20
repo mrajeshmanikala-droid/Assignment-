@@ -183,9 +183,7 @@ function renderApp(): void {
       <div class="header-actions">
         <div class="user-info" style="display: flex; align-items: center; gap: 8px; margin-right: 12px;">
           <span class="user-greeting">Hi, ${getCurrentUser() || 'User'}</span>
-          <span class="plan-badge ${(getUserData()?.plan || 'free')}">${getUserData()?.plan || 'free'}</span>
         </div>
-        ${getUserData()?.plan === 'free' ? '<button class="btn btn-primary" id="btn-upgrade" style="background: var(--pro-gradient);">✨ Upgrade</button>' : ''}
         <button class="btn btn-ghost" id="btn-export" title="Export Transcript" ${state.transcript.length === 0 ? 'disabled' : ''}>📥 Export</button>
         <button class="btn btn-ghost btn-icon" id="btn-settings" title="Settings">⚙️</button>
         <button class="btn btn-ghost" id="btn-clear" title="Clear Session">🗑️</button>
@@ -193,12 +191,6 @@ function renderApp(): void {
       </div>
     </header>
 
-    ${getUserData()?.plan === 'free' ? `
-      <div class="upgrade-banner">
-        <span>🚀 Get unlimited meeting minutes and advanced Llama-3 70B models with TwinMind Pro.</span>
-        <button class="btn btn-primary btn-sm" id="btn-banner-upgrade" style="padding: 4px 12px; font-size: 11px;">View Plans</button>
-      </div>
-    ` : ''}
 
     ${!getApiKey() ? `
       <div class="upgrade-banner" style="background: var(--danger); margin-top: 0;">
@@ -361,11 +353,6 @@ function attachEventListeners(): void {
   document.getElementById('btn-action-items')!.addEventListener('click', () => quickAction('action-items'));
   document.getElementById('btn-key-decisions')!.addEventListener('click', () => quickAction('key-decisions'));
 
-  const upgradeBtn = document.getElementById('btn-upgrade');
-  if (upgradeBtn) upgradeBtn.addEventListener('click', renderPricingPage);
-
-  const bannerUpgradeBtn = document.getElementById('btn-banner-upgrade');
-  if (bannerUpgradeBtn) bannerUpgradeBtn.addEventListener('click', renderPricingPage);
 
   const bannerSettingsBtn = document.getElementById('btn-banner-settings');
   if (bannerSettingsBtn) bannerSettingsBtn.addEventListener('click', openSettings);
@@ -414,13 +401,6 @@ function startRecording(): void {
     return;
   }
 
-  // Plan-based limits check (simulated)
-  const userData = getUserData();
-  if (userData?.plan === 'free' && state.transcript.length > 50) {
-    showToast('Free plan limit reached! Upgrade to Pro for unlimited transcription.', 'error');
-    renderPricingPage();
-    return;
-  }
 
   recorder.start();
 
